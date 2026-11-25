@@ -1,0 +1,106 @@
+---
+title: "IC-Case 31 - Summary of Data Analysis for H5a-H5d"
+author: "Willy Su"
+date: "2026-11-25"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+editor: source
+---
+
+# Data Preparation
+
+```{r}
+#| label: setup
+#| message: false
+
+library(haven)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+efcu <- read_sav("../Case 31 Data_efcu_4.sav")
+names(efcu) <- tolower(names(efcu))
+
+dim(efcu)
+```
+
+## Variable Selection
+
+```{r}
+h5_items <- efcu |>
+  select(q31, q32, q33, q34, q37)
+
+summary(h5_items)
+
+attr(efcu$q37, "labels")
+```
+
+## Recoding
+
+```{r}
+efcu$q37_r <- ifelse(
+  efcu$q37 %in% 1:5,
+  6 - as.numeric(efcu$q37),
+  NA_real_
+)
+
+summary(efcu$q37_r)
+```
+
+# Multiple Regression Analysis
+
+## Descriptive Statistics
+
+```{r}
+h5_data <- efcu |>
+  select(q31, q32, q33, q34, q37_r) |>
+  filter(complete.cases(q31, q32, q33, q34, q37_r))
+
+h5_descriptive <- data.frame(
+  Variable = names(h5_data),
+  N = nrow(h5_data),
+  Mean = sapply(h5_data, mean),
+  SD = sapply(h5_data, sd)
+)
+
+knitr::kable(
+  h5_descriptive,
+  digits = 3,
+  row.names = FALSE,
+  caption = "Descriptive Statistics for H5a-H5d"
+)
+```
+
+## Regression Model
+
+```{r}
+h5_model <- lm(
+  q37_r ~ q31 + q32 + q33 + q34,
+  data = h5_data
+)
+
+summary(h5_model)
+```
+
+## Interpretation
+
+The regression model was statistically significant,
+F(4, 116) = 12.46, p < .001, with R² = .301.
+
+- H5a: Confidentiality was a significant positive predictor (B = .188, p = .036).
+- H5b: Loan processing promptness was a significant positive predictor (B = .308, p < .001).
+- H5c: Adequacy of financial services was a significant positive predictor (B = .294, p < .001).
+- H5d: Loan application simplicity was not significant (B = -.068, p = .390).
+
+H5a, H5b, and H5c were supported, while H5d was not supported.
+
+## Regression Diagnostics
+
+```{r}
+par(mfrow = c(2, 2))
+plot(h5_model)
+par(mfrow = c(1, 1))
+```
