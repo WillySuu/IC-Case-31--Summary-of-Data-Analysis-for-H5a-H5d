@@ -104,3 +104,8 @@ par(mfrow = c(2, 2))
 plot(h5_model)
 par(mfrow = c(1, 1))
 ```
+
+# Appendix
+
+- [GitHub Repository](https://github.com/WillySuu/IC-Case-31--Summary-of-Data-Analysis-for-H5a-H5d)
+- [GitHub Pages](https://willysuu.github.io/IC-Case-31--Summary-of-Data-Analysis-for-H5a-H5d/)
